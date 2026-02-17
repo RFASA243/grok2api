@@ -134,6 +134,32 @@
     historyCount.textContent = String(count);
   }
 
+  function removePreviewItem(item) {
+    if (!item || !videoStage) return;
+    const idx = String(item.dataset.index || '');
+    const url = String(item.dataset.url || '').trim();
+    if (selectedVideoItemId && selectedVideoItemId === idx) {
+      selectedVideoItemId = '';
+      selectedVideoUrl = '';
+      if (enterEditBtn) enterEditBtn.disabled = true;
+      closeEditPanel();
+    }
+    if (mergeTargetVideoUrl && url && mergeTargetVideoUrl === url) {
+      mergeTargetVideoUrl = '';
+      mergeTargetVideoName = '';
+    }
+    item.remove();
+    const hasAny = videoStage.querySelector('.video-item');
+    if (!hasAny) {
+      videoStage.classList.add('hidden');
+      if (videoEmpty) videoEmpty.classList.remove('hidden');
+    }
+    updateHistoryCount();
+    refreshVideoSelectionUi();
+    updateMergeLabels();
+    updateManualActionsVisibility();
+  }
+
   function updateMergeLabels() {
     if (mergeVideoA) {
       mergeVideoA.textContent = selectedVideoUrl ? shortHash(selectedVideoUrl) : '-';
@@ -1356,11 +1382,16 @@
     if (!taskState || taskState.done) {
       return;
     }
+    const previewItem = taskState.previewItem || null;
+    const hasVideoUrl = Boolean(previewItem && String(previewItem.dataset.url || '').trim());
     taskState.done = true;
-    if (!hasError) {
+    if (!hasError && hasVideoUrl) {
       taskState.progress = 100;
     } else {
       hasRunError = true;
+      if (previewItem) {
+        removePreviewItem(previewItem);
+      }
     }
     if (taskState.source) {
       try {
@@ -1506,6 +1537,12 @@
     if (authHeader !== null) {
       await stopVideoTask(activeTaskIds, authHeader);
     }
+    taskStates.forEach((taskState) => {
+      if (!taskState || taskState.done) return;
+      if (taskState.previewItem) {
+        removePreviewItem(taskState.previewItem);
+      }
+    });
     closeAllSources();
     isRunning = false;
     taskStates = new Map();
