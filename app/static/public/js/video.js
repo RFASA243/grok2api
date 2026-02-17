@@ -18,7 +18,6 @@
   const editFrameIndex = document.getElementById('editFrameIndex');
   const editTimestampMs = document.getElementById('editTimestampMs');
   const editFrameHash = document.getElementById('editFrameHash');
-  const editLengthSelect = document.getElementById('editLengthSelect');
   const editPromptInput = document.getElementById('editPromptInput');
   const spliceBtn = document.getElementById('spliceBtn');
   const pickMergeVideoBtn = document.getElementById('pickMergeVideoBtn');
@@ -1513,10 +1512,10 @@
         source_image_url: null,
         reasoning_effort: DEFAULT_REASONING_EFFORT,
         aspect_ratio: ratioSelect ? ratioSelect.value : '3:2',
-        video_length: editLengthSelect ? parseInt(editLengthSelect.value, 10) : 6,
+        video_length: lengthSelect ? parseInt(lengthSelect.value, 10) : 6,
         resolution_name: resolutionSelect ? resolutionSelect.value : '480p',
         preset: presetSelect ? presetSelect.value : 'custom',
-        concurrent: 1,
+        concurrent: getConcurrentValue(),
         edit_context: editCtx
       })
     });

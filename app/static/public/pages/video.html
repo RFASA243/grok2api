@@ -163,14 +163,6 @@
                 <div class="meta-item"><div class="meta-label">timestamp_ms</div><div id="editTimestampMs" class="meta-value">-</div></div>
                 <div class="meta-item"><div class="meta-label">frame_hash</div><div id="editFrameHash" class="meta-value">-</div></div>
                 <div class="meta-item"><div class="meta-label">视频2(B)</div><div id="mergeVideoB" class="meta-value">-</div></div>
-                <div class="meta-item">
-                  <div class="meta-label">拼接时长</div>
-                  <select id="editLengthSelect" class="geist-input">
-                    <option value="6" selected>6 秒</option>
-                    <option value="10">10 秒</option>
-                    <option value="15">15 秒</option>
-                  </select>
-                </div>
               </div>
               <div class="settings-block prompt-block edit-prompt-block">
                 <label class="field-label" for="editPromptInput">拼接提示词</label>
@@ -261,9 +253,9 @@
 
           <aside class="video-card history-panel">
             <div class="panel-head">
-              <div class="card-title">历史拼接视频</div>
+              <div class="card-title">历史视频</div>
             </div>
-            <div id="videoEmpty" class="video-empty">拼接结果会在这里保存，点击可替换到工作区。</div>
+            <div id="videoEmpty" class="video-empty">生成视频与拼接视频都会在这里保存，点击可替换到工作区。</div>
             <div id="videoStage" class="video-stage hidden"></div>
           </aside>
         </aside>
@@ -315,7 +307,7 @@
   <script src="/static/common/js/pwa.js?v=0.1.1"></script>
   <script src="/static/vendor/ffmpeg/ffmpeg.js?v=0.1.0"></script>
   <script src="/static/vendor/ffmpeg/ffmpeg-util.js?v=0.1.0"></script>
-  <script src="/static/public/js/video.js?v=0.5.7"></script>
+  <script src="/static/public/js/video.js?v=0.5.8"></script>
 </body>
 
 </html>
