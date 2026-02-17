@@ -515,6 +515,11 @@ body {
   flex-wrap: wrap;
 }
 
+.splice-action-row {
+  width: 100%;
+  justify-content: flex-end;
+}
+
 .video-empty {
   text-align: center;
   color: var(--accents-4);

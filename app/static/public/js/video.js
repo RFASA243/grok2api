@@ -131,18 +131,20 @@
 
   function setSpliceButtonState(state) {
     if (!spliceBtn) return;
+    const iconSplice = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H6a2 2 0 0 0-2 2v5"/><path d="M13 20h5a2 2 0 0 0 2-2v-5"/><path d="M20 6l-8 8"/><path d="M4 18l8-8"/></svg>';
+    const iconStop = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14"/></svg>';
     if (state === 'running') {
       spliceBtn.disabled = false;
-      spliceBtn.textContent = '中止拼接';
+      spliceBtn.innerHTML = `${iconStop}<span>中止拼接</span>`;
       return;
     }
     if (state === 'stopping') {
       spliceBtn.disabled = true;
-      spliceBtn.textContent = '中止中...';
+      spliceBtn.innerHTML = `${iconStop}<span>中止中...</span>`;
       return;
     }
     spliceBtn.disabled = false;
-    spliceBtn.textContent = '拼接视频';
+    spliceBtn.innerHTML = `${iconSplice}<span>拼接视频</span>`;
   }
 
   function updateHistoryCount() {
@@ -2611,6 +2613,7 @@
   updateMergeLabels();
   updateHistoryCount();
   updateManualActionsVisibility();
+  setSpliceButtonState('idle');
   if (imageUrlInput && imageUrlInput.value.trim()) {
     const resolved = resolveReferenceByText(imageUrlInput.value.trim());
     setReferencePreview(resolved.url || resolved.sourceUrl || imageUrlInput.value.trim(), resolved.parentPostId || '');

@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-mono/style.css" rel="stylesheet">
   <script src="/static/common/js/theme.js?v=0.1.0"></script>
   <link href="/static/common/css/common.css?v=0.3.7" rel="stylesheet">
-  <link href="/static/public/css/video.css?v=0.4.8" rel="stylesheet">
+  <link href="/static/public/css/video.css?v=0.4.9" rel="stylesheet">
   <link href="/static/common/css/toast.css" rel="stylesheet">
 </head>
 
@@ -168,8 +168,17 @@
                 <label class="field-label" for="editPromptInput">拼接提示词</label>
                 <textarea id="editPromptInput" class="geist-input video-textarea" placeholder="描述后续要拼接的画面内容"></textarea>
               </div>
-              <div class="preview-actions">
-                <button id="spliceBtn" class="geist-button text-xs px-3">拼接视频</button>
+              <div class="preview-actions splice-action-row">
+                <button id="spliceBtn" class="geist-button gap-2 text-xs px-3">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H6a2 2 0 0 0-2 2v5" />
+                    <path d="M13 20h5a2 2 0 0 0 2-2v-5" />
+                    <path d="M20 6l-8 8" />
+                    <path d="M4 18l8-8" />
+                  </svg>
+                  <span>拼接视频</span>
+                </button>
               </div>
               <div class="video-card manual-merge-card">
                 <div class="video-preview-header">
@@ -307,7 +316,7 @@
   <script src="/static/common/js/pwa.js?v=0.1.1"></script>
   <script src="/static/vendor/ffmpeg/ffmpeg.js?v=0.1.0"></script>
   <script src="/static/vendor/ffmpeg/ffmpeg-util.js?v=0.1.0"></script>
-  <script src="/static/public/js/video.js?v=0.5.14"></script>
+  <script src="/static/public/js/video.js?v=0.5.15"></script>
 </body>
 
 </html>
