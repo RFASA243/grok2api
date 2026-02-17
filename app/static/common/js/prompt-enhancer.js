@@ -232,7 +232,6 @@
       toast('请先输入提示词', 'warning');
       return;
     }
-    const prevText = enhanceBtn.textContent;
     enhanceBtn.disabled = true;
     toggleBtn.disabled = true;
     enhanceBtn.textContent = '增强中...';
@@ -270,7 +269,7 @@
     } finally {
       enhanceBtn.disabled = false;
       toggleBtn.disabled = false;
-      enhanceBtn.textContent = prevText;
+      setEnhanceButtonMode(enhanceBtn, String(enhanceBtn.dataset.mode || 'enhance'));
     }
   }
 
