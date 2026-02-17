@@ -88,6 +88,7 @@
   let ffmpegLoading = false;
   const DEFAULT_REASONING_EFFORT = 'low';
   const EDIT_TIMELINE_MAX = 100000;
+  const TAIL_FRAME_GUARD_MS = 80;
   let mergeTargetVideoUrl = '';
   let mergeTargetVideoName = '';
   let mergeCutMsA = 0;
@@ -130,6 +131,20 @@
     if (editFrameIndex) editFrameIndex.textContent = lockedFrameIndex >= 0 ? String(lockedFrameIndex) : '-';
     if (editTimestampMs) editTimestampMs.textContent = String(Math.max(0, Math.round(lockedTimestampMs)));
     if (editFrameHash) editFrameHash.textContent = shortHash(lastFrameHash);
+  }
+
+  function getSafeEditMaxTimestampMs() {
+    if (!editVideo) return Infinity;
+    const durationMs = Math.floor(Math.max(0, Number(editVideo.duration || 0) * 1000));
+    if (!durationMs) return Infinity;
+    return Math.max(0, durationMs - TAIL_FRAME_GUARD_MS);
+  }
+
+  function clampEditTimestampMs(ms) {
+    const safe = Math.max(0, Math.round(Number(ms) || 0));
+    const maxMs = getSafeEditMaxTimestampMs();
+    if (!Number.isFinite(maxMs)) return safe;
+    return Math.max(0, Math.min(safe, maxMs));
   }
 
   function setSpliceButtonState(state) {
@@ -1371,14 +1386,14 @@
     const current = Number(editVideo.currentTime || 0);
     const ratio = Math.max(0, Math.min(1, current / duration));
     editTimeline.value = String(Math.round(ratio * EDIT_TIMELINE_MAX));
-    lockedTimestampMs = Math.round(current * 1000);
+    lockedTimestampMs = clampEditTimestampMs(Math.round(current * 1000));
     if (editTimeText) editTimeText.textContent = formatMs(lockedTimestampMs);
   }
 
   function lockFrameByCurrentTime() {
     if (!editVideo) return;
     const currentTime = Number(editVideo.currentTime || 0);
-    lockedTimestampMs = Math.round(currentTime * 1000);
+    lockedTimestampMs = clampEditTimestampMs(Math.round(currentTime * 1000));
     const approxFps = 30;
     lockedFrameIndex = Math.max(0, Math.round(currentTime * approxFps));
     setEditMeta();
@@ -1815,26 +1830,41 @@
       const inputName = `${prefix}_input.mp4`;
       const frameName = `${prefix}_frame.png`;
       try {
-      await ffmpegWriteFile(ff, inputName, srcBuffer);
-      const seconds = (Math.max(0, lockedTimestampMs) / 1000).toFixed(3);
-      await ffmpegExec(ff, ['-y', '-ss', seconds, '-i', inputName, '-frames:v', '1', frameName]);
-      const frameBytes = await ffmpegReadFile(ff, frameName);
-      const frameHash = await sha256Hex(frameBytes);
-      const sourceHash = await sha256Hex(srcBuffer);
-      let binary = '';
-      const chunk = 0x8000;
-      for (let i = 0; i < frameBytes.length; i += chunk) {
-        binary += String.fromCharCode(...frameBytes.subarray(i, i + chunk));
-      }
-      const dataUrl = `data:image/png;base64,${btoa(binary)}`;
-      lastFrameHash = frameHash;
-      setEditMeta();
-      return {
-        dataUrl,
-        frameHash,
-        sourceHash,
-        sourceBuffer: toStableArrayBuffer(srcBuffer),
-      };
+        await ffmpegWriteFile(ff, inputName, srcBuffer);
+        const baseMs = clampEditTimestampMs(lockedTimestampMs);
+        const candidates = [baseMs, baseMs - 34, baseMs - 68, baseMs - 102]
+          .map((v) => Math.max(0, Math.round(v)));
+        let frameBytes = null;
+        for (const ms of candidates) {
+          const seconds = (ms / 1000).toFixed(3);
+          try {
+            await ffmpegExec(ff, ['-y', '-ss', seconds, '-i', inputName, '-frames:v', '1', frameName]);
+            frameBytes = await ffmpegReadFile(ff, frameName);
+            lockedTimestampMs = ms;
+            break;
+          } catch (e) {
+            await ffmpegDeleteFileSafe(ff, frameName);
+          }
+        }
+        if (!frameBytes) {
+          throw new Error('extract_frame_failed_near_tail');
+        }
+        const frameHash = await sha256Hex(frameBytes);
+        const sourceHash = await sha256Hex(srcBuffer);
+        let binary = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < frameBytes.length; i += chunk) {
+          binary += String.fromCharCode(...frameBytes.subarray(i, i + chunk));
+        }
+        const dataUrl = `data:image/png;base64,${btoa(binary)}`;
+        lastFrameHash = frameHash;
+        setEditMeta();
+        return {
+          dataUrl,
+          frameHash,
+          sourceHash,
+          sourceBuffer: toStableArrayBuffer(srcBuffer),
+        };
       } finally {
         await ffmpegDeleteFileSafe(ff, inputName);
         await ffmpegDeleteFileSafe(ff, frameName);
@@ -2303,7 +2333,7 @@
       const ratio = Number(editTimeline.value || 0) / EDIT_TIMELINE_MAX;
       const nextTime = Math.max(0, Math.min(duration, duration * ratio));
       editVideo.currentTime = nextTime;
-      lockedTimestampMs = Math.round(nextTime * 1000);
+      lockedTimestampMs = clampEditTimestampMs(Math.round(nextTime * 1000));
       if (editTimeText) editTimeText.textContent = formatMs(lockedTimestampMs);
       lockFrameByCurrentTime();
     });
