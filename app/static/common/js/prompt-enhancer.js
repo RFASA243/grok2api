@@ -19,6 +19,21 @@
       .prompt-enhance-wrap > textarea {
         padding-bottom: 40px;
       }
+      .prompt-enhance-wrap.lightbox-mode > textarea {
+        padding-left: 112px;
+        padding-right: 116px;
+        min-height: 84px;
+      }
+      .prompt-enhance-wrap.lightbox-mode > .inline-send-inside {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        z-index: 3;
+        height: 30px;
+        min-width: 88px;
+        padding: 0 10px;
+        border-radius: 8px;
+      }
       .prompt-enhance-btn {
         position: absolute;
         right: 10px;
@@ -281,8 +296,23 @@
 
     const wrapper = document.createElement('div');
     wrapper.className = 'prompt-enhance-wrap';
+    const isLightbox = textarea.classList.contains('lightbox-edit-input');
+    if (isLightbox) {
+      wrapper.classList.add('lightbox-mode');
+    }
     parent.insertBefore(wrapper, textarea);
     wrapper.appendChild(textarea);
+
+    if (isLightbox) {
+      const main = wrapper.parentElement;
+      const sendBtn = main ? main.querySelector('#lightboxEditSend, .lightbox-edit-send') : null;
+      if (sendBtn instanceof HTMLButtonElement && sendBtn.parentElement !== wrapper) {
+        wrapper.appendChild(sendBtn);
+      }
+      if (sendBtn instanceof HTMLButtonElement) {
+        sendBtn.classList.add('inline-send-inside');
+      }
+    }
 
     const langBtn = document.createElement('button');
     langBtn.type = 'button';
