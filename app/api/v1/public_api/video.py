@@ -14,6 +14,7 @@ from app.core.logger import logger
 from app.services.grok.services.video import VideoService
 from app.services.grok.services.model import ModelService
 from app.api.v1.public_api import imagine as imagine_public_api
+from app.services.grok.utils.cache import CacheService
 
 router = APIRouter()
 
@@ -387,6 +388,15 @@ class VideoStopRequest(BaseModel):
 async def public_video_stop(data: VideoStopRequest):
     removed = await _drop_sessions(data.task_ids or [])
     return {"status": "success", "removed": removed}
+
+
+@router.get("/video/cache/list", dependencies=[Depends(verify_public_key)])
+async def public_video_cache_list(page: int = 1, page_size: int = 100):
+    page = max(1, int(page or 1))
+    page_size = max(1, min(200, int(page_size or 100)))
+    cache_service = CacheService()
+    result = cache_service.list_files("video", page=page, page_size=page_size)
+    return {"status": "success", **result}
 
 
 __all__ = ["router"]

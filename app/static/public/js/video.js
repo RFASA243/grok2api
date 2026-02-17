@@ -2,6 +2,10 @@
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const pickCachedVideoBtn = document.getElementById('pickCachedVideoBtn');
+  const cacheVideoModal = document.getElementById('cacheVideoModal');
+  const closeCacheVideoModalBtn = document.getElementById('closeCacheVideoModalBtn');
+  const cacheVideoList = document.getElementById('cacheVideoList');
   const enterEditBtn = document.getElementById('enterEditBtn');
   const editPanel = document.getElementById('editPanel');
   const editHint = document.getElementById('editHint');
@@ -904,8 +908,10 @@
   function openEditPanel() {
     if (!editPanel || !editHint || !editBody) return;
     const item = getSelectedVideoItem();
-    const url = item ? String(item.dataset.url || '').trim() : '';
-    if (!item || !url) {
+    const url = item
+      ? String(item.dataset.url || '').trim()
+      : String(selectedVideoUrl || '').trim();
+    if (!url) {
       editPanel.classList.remove('hidden');
       editHint.classList.remove('hidden');
       editBody.classList.add('hidden');
@@ -923,6 +929,89 @@
     editHint.classList.remove('hidden');
     editBody.classList.add('hidden');
     editPanel.classList.add('hidden');
+  }
+
+  function openCacheVideoModal() {
+    if (!cacheVideoModal) return;
+    cacheVideoModal.classList.remove('hidden');
+    cacheVideoModal.classList.add('is-open');
+  }
+
+  function closeCacheVideoModal() {
+    if (!cacheVideoModal) return;
+    cacheVideoModal.classList.remove('is-open');
+    cacheVideoModal.classList.add('hidden');
+  }
+
+  function formatBytes(bytes) {
+    const n = Number(bytes || 0);
+    if (n <= 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const idx = Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
+    const val = n / Math.pow(1024, idx);
+    return `${val.toFixed(idx === 0 ? 0 : 1)} ${units[idx]}`;
+  }
+
+  function formatMtime(ms) {
+    const d = new Date(Number(ms || 0));
+    if (!Number.isFinite(d.getTime())) return '-';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${day} ${hh}:${mm}`;
+  }
+
+  async function loadCachedVideos() {
+    const authHeader = await ensurePublicKey();
+    if (authHeader === null) {
+      toast('请先配置 Public Key', 'error');
+      window.location.href = '/login';
+      return [];
+    }
+    const res = await fetch('/v1/public/video/cache/list?page=1&page_size=100', {
+      headers: buildAuthHeaders(authHeader),
+    });
+    if (!res.ok) {
+      throw new Error(`load_cache_failed_${res.status}`);
+    }
+    const data = await res.json();
+    return Array.isArray(data.items) ? data.items : [];
+  }
+
+  function renderCachedVideoList(items) {
+    if (!cacheVideoList) return;
+    if (!items.length) {
+      cacheVideoList.innerHTML = '<div class="video-empty">暂无缓存视频</div>';
+      return;
+    }
+    const html = items.map((item, idx) => {
+      const name = String(item.name || '');
+      const url = String(item.view_url || '');
+      const size = formatBytes(item.size_bytes);
+      const mtime = formatMtime(item.mtime_ms);
+      return `<div class="cache-video-item" data-url="${url}" data-name="${name}">
+        <div class="cache-video-meta">
+          <div class="cache-video-name">${name || `video_${idx + 1}.mp4`}</div>
+          <div class="cache-video-sub">${size} · ${mtime}</div>
+        </div>
+        <button class="geist-button-outline text-xs px-3 cache-video-use" type="button">使用</button>
+      </div>`;
+    }).join('');
+    cacheVideoList.innerHTML = html;
+  }
+
+  function useCachedVideo(url, name) {
+    const safeUrl = String(url || '').trim();
+    if (!safeUrl) return;
+    selectedVideoItemId = `cache-${Date.now()}`;
+    selectedVideoUrl = safeUrl;
+    if (imageUrlInput) imageUrlInput.value = safeUrl;
+    if (imageFileName && name) imageFileName.textContent = name;
+    if (enterEditBtn) enterEditBtn.disabled = false;
+    closeCacheVideoModal();
+    openEditPanel();
   }
 
   function updateTimelineByVideoTime() {
@@ -1487,6 +1576,49 @@
   if (spliceBtn) {
     spliceBtn.addEventListener('click', () => {
       runSplice();
+    });
+  }
+
+  if (pickCachedVideoBtn) {
+    pickCachedVideoBtn.addEventListener('click', async () => {
+      try {
+        openCacheVideoModal();
+        if (cacheVideoList) {
+          cacheVideoList.innerHTML = '<div class="video-empty">正在读取缓存视频...</div>';
+        }
+        const items = await loadCachedVideos();
+        renderCachedVideoList(items);
+      } catch (e) {
+        if (cacheVideoList) {
+          cacheVideoList.innerHTML = '<div class="video-empty">读取失败，请稍后重试</div>';
+        }
+        toast('读取缓存视频失败', 'error');
+      }
+    });
+  }
+
+  if (closeCacheVideoModalBtn) {
+    closeCacheVideoModalBtn.addEventListener('click', () => {
+      closeCacheVideoModal();
+    });
+  }
+
+  if (cacheVideoModal) {
+    cacheVideoModal.addEventListener('click', (event) => {
+      if (event.target === cacheVideoModal) {
+        closeCacheVideoModal();
+      }
+    });
+  }
+
+  if (cacheVideoList) {
+    cacheVideoList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!target.classList.contains('cache-video-use')) return;
+      const row = target.closest('.cache-video-item');
+      if (!row) return;
+      useCachedVideo(row.getAttribute('data-url') || '', row.getAttribute('data-name') || '');
     });
   }
 

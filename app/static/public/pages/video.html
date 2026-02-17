@@ -177,6 +177,7 @@
         <div class="video-preview-header">
           <div class="card-title">视频预览</div>
           <div class="preview-actions">
+            <button id="pickCachedVideoBtn" class="geist-button-outline text-xs px-3">选择缓存视频</button>
             <button id="enterEditBtn" class="geist-button-outline text-xs px-3">进入编辑模式</button>
             <button id="clearBtn" class="geist-button-outline text-xs px-3">清空</button>
           </div>
@@ -224,6 +225,21 @@
           <div class="preview-actions">
             <button id="spliceBtn" class="geist-button text-xs px-3">拼接视频</button>
           </div>
+        </div>
+      </div>
+
+      <div id="cacheVideoModal" class="modal-overlay hidden">
+        <div class="modal-content modal-lg">
+          <div class="modal-header">
+            <h3 class="modal-title">选择缓存视频</h3>
+            <button id="closeCacheVideoModalBtn" class="modal-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div id="cacheVideoList" class="cache-video-list"></div>
         </div>
       </div>
     </div>
