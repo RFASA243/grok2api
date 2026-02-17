@@ -225,6 +225,14 @@ body {
   align-items: start;
 }
 
+.settings-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
 .settings-block {
   display: flex;
   flex-direction: column;
@@ -942,12 +950,12 @@ html[data-theme='dark'] .cache-video-item {
     grid-template-columns: 1fr;
   }
 
-  .video-actions {
+  .settings-actions {
     width: 100%;
   }
 
-  .video-actions .geist-button,
-  .video-actions .geist-button-outline {
+  .settings-actions .geist-button,
+  .settings-actions .geist-button-outline {
     flex: 1;
     justify-content: center;
   }

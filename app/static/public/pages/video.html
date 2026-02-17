@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-mono/style.css" rel="stylesheet">
   <script src="/static/common/js/theme.js?v=0.1.0"></script>
   <link href="/static/common/css/common.css?v=0.3.7" rel="stylesheet">
-  <link href="/static/public/css/video.css?v=0.4.7" rel="stylesheet">
+  <link href="/static/public/css/video.css?v=0.4.8" rel="stylesheet">
   <link href="/static/common/css/toast.css" rel="stylesheet">
 </head>
 
@@ -32,22 +32,6 @@
         <div>
           <h2 class="text-2xl font-semibold tracking-tight">Video 视频生成</h2>
           <p class="text-[var(--accents-4)] mt-1 text-sm">生成短视频，支持参考图与多种预设风格。</p>
-        </div>
-        <div class="video-actions">
-          <button id="startBtn" class="geist-button gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-            开始生成
-          </button>
-          <button id="stopBtn" class="geist-button-outline gap-2 hidden">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="5" y="5" width="14" height="14" />
-            </svg>
-            停止
-          </button>
         </div>
       </div>
 
@@ -132,6 +116,22 @@
               <label class="field-label">&nbsp;</label>
               <button id="clearImageFileBtn" class="geist-button-outline text-xs px-3" type="button">清除</button>
             </div>
+            </div>
+            <div class="settings-actions">
+              <button id="startBtn" class="geist-button gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                开始生成
+              </button>
+              <button id="stopBtn" class="geist-button-outline gap-2 hidden">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="5" width="14" height="14" />
+                </svg>
+                停止
+              </button>
             </div>
           </div>
           <div id="editPanel" class="video-card edit-panel">
