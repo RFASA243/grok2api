@@ -1617,6 +1617,9 @@
         reject(new Error('edit_cancelled'));
         return;
       }
+      if (spliceRun && spliceRun.pendingRejects) {
+        spliceRun.pendingRejects.add(reject);
+      }
       const url = buildSseUrl(taskId, rawPublicKey);
       const es = new EventSource(url);
       let buffer = '';
@@ -1630,6 +1633,9 @@
         try { es.close(); } catch (e) { /* ignore */ }
         if (spliceRun && spliceRun.sources) {
           spliceRun.sources.delete(es);
+        }
+        if (spliceRun && spliceRun.pendingRejects) {
+          spliceRun.pendingRejects.delete(reject);
         }
       };
 
@@ -1709,6 +1715,12 @@
         try { es.close(); } catch (e) { /* ignore */ }
       });
       run.sources.clear();
+    }
+    if (run.pendingRejects && run.pendingRejects.size) {
+      run.pendingRejects.forEach((rejectFn) => {
+        try { rejectFn(new Error('edit_cancelled')); } catch (e) { /* ignore */ }
+      });
+      run.pendingRejects.clear();
     }
     if (run.taskIds && run.taskIds.length) {
       try {
@@ -2019,6 +2031,7 @@
       taskIds: [],
       placeholders: new Map(),
       sources: new Set(),
+      pendingRejects: new Set(),
     };
     activeSpliceRun = spliceRun;
     setSpliceButtonState('running');
