@@ -703,11 +703,13 @@
   async function ffmpegReadFile(ff, name) {
     if (typeof ff.readFile === 'function') {
       const out = await ff.readFile(name);
-      return out instanceof Uint8Array ? out : new Uint8Array(out);
+      const view = out instanceof Uint8Array ? out : new Uint8Array(out);
+      return new Uint8Array(view);
     }
     if (ff.FS) {
       const out = ff.FS('readFile', name);
-      return out instanceof Uint8Array ? out : new Uint8Array(out);
+      const view = out instanceof Uint8Array ? out : new Uint8Array(out);
+      return new Uint8Array(view);
     }
     throw new Error('ffmpeg_readfile_unsupported');
   }
