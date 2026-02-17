@@ -20,6 +20,9 @@
         padding-bottom: 40px;
       }
       .prompt-enhance-wrap.lightbox-mode > textarea {
+        width: 100%;
+        display: block;
+        box-sizing: border-box;
         padding-left: 112px;
         padding-right: 116px;
         min-height: 84px;
