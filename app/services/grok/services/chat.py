@@ -171,7 +171,7 @@ class GrokChatService:
         token: str,
         message: str,
         model: str = "grok-3",
-        requested_model: str | None = None, (feat: support new model Grok 4.20 Beta)
+        requested_model: str | None = None,
         mode: str = None,
         stream: bool = None,
         file_attachments: List[str] = None,

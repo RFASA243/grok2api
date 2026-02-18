@@ -182,8 +182,7 @@
       setLightboxKeyboardShift(0);
       return;
     }
-    const isMobile = window.matchMedia('(max-width: 1024px)').matches || window.matchMedia('(pointer: coarse)').matches;
-    if (!isMobile || document.activeElement !== lightboxEditInput) {
+    if (document.activeElement !== lightboxEditInput) {
       setLightboxKeyboardShift(0);
       return;
     }
